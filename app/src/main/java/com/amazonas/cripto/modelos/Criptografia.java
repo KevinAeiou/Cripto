@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class Criptografia extends Mensagem{
     private static final String TAG = "classeCriptografia";
     private String textoCriptografado;
-    private int CHAVE_CODIGO_DEZ_LETRAS;
+    private int CHAVE_CODIGO_DEZ_LETRAS = 10;
     public Criptografia(String texto) {
         super(texto);
         this.textoCriptografado = textoCriptografado;
@@ -51,7 +51,7 @@ public class Criptografia extends Mensagem{
     }
 
     private String criptografaAlfabeto() {
-        int dia = 0;
+        int dia;
         String alfabeto = "";
         Locale local = new Locale("pt", "BR");
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd'de'MMMM", local);
@@ -61,24 +61,39 @@ public class Criptografia extends Mensagem{
         try {
             String diaPorExtenso = getDiaPorExtenso(dia);
             String dataPorExtenso = diaPorExtenso+dataFormatada.substring(2,dataFormatada.length());
-            Log.d(TAG, "Data atual por extenso: "+dataPorExtenso);
-            String[] dataPorExtensoSemRepeticao = removeRepeticoes(dataPorExtenso);
-            Log.d(TAG, "Dia atual sem repetições: "+dataPorExtensoSemRepeticao.toString());
+            String dataPorExtensoSemRepeticao = removeRepeticoes(dataPorExtenso);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return alfabeto;
     }
 
-    private String[] removeRepeticoes(String dataPorExtenso) {
-        String[] dataPorExtensoArray = new String[]{dataPorExtenso};
-        Pattern padrao = Pattern.compile("(A-Za-z)\\1+");
-        String[] resultado = new String[dataPorExtenso.length()];
-        for (int i = 0; i < dataPorExtensoArray.length; i++) {
-            String atual = String.valueOf(padrao.matcher(dataPorExtensoArray[i].replaceAll("$1", "")));
-            resultado[i] = atual;
+    private String removeRepeticoes(String dataPorExtenso) {
+        char[] arrayDataExtenso = dataPorExtenso.toCharArray();
+        String[] resultado = new String[arrayDataExtenso.length];
+        for (int i = 0; i < arrayDataExtenso.length; i ++) {
+            String letraAtual = String.valueOf(arrayDataExtenso[i]);
+            if (resultado[0] == null) {
+                resultado[0] = letraAtual;
+            } else {
+                boolean existe = false;
+                for (int x = 0; x < resultado.length; x ++) {
+                    if (resultado[x] != null &&  resultado[x].equals(letraAtual)) {
+                        existe = true;
+                        break;
+                    }
+                }
+                if (!existe) {
+                    for (int x = 0; x < resultado.length; x ++) {
+                        if (resultado[x] == null) {
+                            resultado[x] = letraAtual;
+                            break;
+                        }
+                    }
+                }
+            }
         }
-        return resultado;
+        return Arrays.toString((resultado));
     }
 
     private static String getDiaPorExtenso(int dia) throws Exception {
